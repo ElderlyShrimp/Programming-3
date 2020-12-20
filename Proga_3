@@ -1,0 +1,321 @@
+// Практическая выполнялась на оценку 4, это значит, что в первом и втором заданиях был выбран 1 вариант из предложенных
+
+
+#include <iostream>
+#include <iomanip>
+#include <conio.h>
+#include <cstdlib>
+#include <stdio.h>
+#include <Windows.h>
+
+using namespace std;
+
+
+int** Mass(int size);
+void zapolnenie(int** Arr, int size);
+void OutMas(int** Arr, int size);
+void snake(int** arr, int size, int sho, int x, int y, int limit);
+void number2(int** Arr, int size);
+void sort(int** arr, int size);
+int number4(int** Arr, int size);
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+
+	int size;
+
+	cout << "Выберите порядок квадратичной матрицы (6/8/10):  ";
+	cin >> size;
+
+	int** Arr;
+	Arr = Mass(size);
+	zapolnenie(Arr, size);
+	
+
+
+	cout << "1) Используя арифметику указателей, заполняет квадратичную целочисленную матрицу порядка N (6,8,10) случайными числами от 1 до  N*N согласно схемам, приведенным на рисунках. Пользователь должен видеть процесс заполнения квадратичной матрицы.\n";
+
+	CONSOLE_SCREEN_BUFFER_INFO buff;
+	COORD coord;
+	(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &buff));
+	coord.X = buff.dwCursorPosition.X;
+	coord.Y = buff.dwCursorPosition.Y;
+	Sleep(1000);
+	cout << "b)";
+	snake(Arr, size, 0, coord.X + 2, coord.Y, 1);
+	
+	COORD cur;
+	HANDLE Cons = GetStdHandle(STD_OUTPUT_HANDLE);
+	cur.X = 0;
+	cur.Y = coord.Y + size * 2 + 2;
+	SetConsoleCursorPosition(Cons, cur);
+
+	cout << "2) Получает новую матрицу, из матрицы п. 1, переставляя ее блоки в соответствии со схемами: \n\n";
+	Sleep(1000);
+	cout << "До: \n";
+	Sleep(800);
+	OutMas(Arr, size);
+	Sleep(800);
+	cout << "После: \n";
+	Sleep(800);
+	number2(Arr, size);
+	Sleep(1000);
+
+	cout << "\n3) Используя арифметику указателей, сортирует элементы любой сортировкой:\n";
+	Sleep(1000);
+	cout << "До:\n";
+	Sleep(800);
+	OutMas(Arr, size);
+	sort(Arr, size);
+	Sleep(800);
+	cout << "После:\n";
+	Sleep(800);
+	OutMas(Arr, size);
+	Sleep(1000);
+
+	cout << "\n4) Уменьшает, увеличивает, умножает или делит все элементы матрицы на введенное пользователем число: \n";
+
+	Sleep(1000);
+	OutMas(Arr, size);
+	Sleep(800);
+	number4(Arr, size);
+}
+
+int** Mass(int size)
+{
+	int** Arr;
+	Arr = new int* [size];
+	for (int i = 0; i < size; i++) {
+		Arr[i] = new int[size];
+	}
+	return Arr;
+}
+
+void zapolnenie(int** Arr, int size)
+{
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			Arr[i][j] = rand() % ((size * size) + 1);
+		}
+
+	}
+}
+
+void OutMas(int** Arr, int size)
+{
+
+	for (int i = 0, f = 0; i < size; i++, f++)
+	{
+
+		for (int j = 0; j < size; j++)
+		{
+			cout << setw(4) << Arr[i][j];
+		}
+		cout << "\n\n";
+	}
+}
+
+int* Help;
+
+void snake(int** arr, int size, int sho, int x, int y, int limit) {
+
+	for (int i = sho; i < size; i++, y += 2) {
+		Help = arr[sho];
+		*Help = rand() % ((size * size) + 1);
+
+		Sleep(50);
+		COORD cur;
+		HANDLE Cons = GetStdHandle(STD_OUTPUT_HANDLE);
+		cur.X = x;
+		cur.Y = y;
+		SetConsoleCursorPosition(Cons, cur);
+		cout << *Help;
+
+
+		limit++;
+	}
+
+	sho = size - 1;
+	y -= 2;
+	x += 4;
+
+	if (limit < size * size) {
+
+		for (int i = sho; i >= 0; i--, y -= 2) {
+			Help = arr[i];
+			*Help = rand() % ((size * size) + 1);
+
+			Sleep(50);
+			COORD cur;
+			HANDLE Cons = GetStdHandle(STD_OUTPUT_HANDLE);
+			cur.X = x;
+			cur.Y = y;
+			SetConsoleCursorPosition(Cons, cur);
+			cout << *Help;
+
+			limit++;
+		}
+
+		sho = 0;
+
+		if (limit < size * size) snake(arr, size, sho, x += 4, y += 2, limit);
+
+	}
+
+}
+
+int* Help2;
+
+void number2(int** Arr, int size) {
+
+	int half = size / 2;
+
+	cout << "a)" << endl;
+	for (int i = 0; i < half; i++) {
+		Help = Arr[i];
+		for (int j = 0, el = half; j < half; j++, el++) {
+			swap (*(Help + el), * (Help + j));
+		}
+	}
+	for (int i = 0; i < half; i++) {
+		for (int j = 0, el = half; j < half; j++, el++) {
+			Help = Arr[j];
+			Help2 = Arr[el];
+			swap (*(Help + i), *(Help2 + i));
+		}
+	}
+	for (int i = half; i < size; i++) {
+		Help = Arr[i];
+		for (int j = 0, el = half; j < half; j++, el++) {
+			swap (*(Help + el), *(Help + j));
+		}
+	}
+	OutMas(Arr, size);
+}
+
+
+
+void sort(int** arr, int size)
+{
+	for (int limit = 0; limit < size*size; limit++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			Help = arr[j];
+			for (int i = 0; i < size - 1; i++)
+			{
+				if (*(Help + i) > * (Help + i + 1))
+				{
+					swap(*(Help + i), *(Help + i + 1));
+				}
+			}
+
+		}
+
+		for (int i = 0; i < size - 1; i++)
+		{
+			for (int j = 0; j < size - 1; j++)
+			{
+				Help = arr[j];
+				
+				if (*(Help + i) > * (Help + i + 1))
+				{
+					swap(*(Help + i), *(Help + i + 1));
+				}
+			}
+		}
+
+		for (int i = 0; i < size - 1; i++)
+		{
+			Help = arr[i];
+			Help2 = arr[i + 1];
+			if (*(Help + size - 1) > * Help2)
+			{
+				swap(*(Help + size - 1), *Help2);
+			}
+		}
+	}
+}
+
+
+
+int number4(int** Arr, int size) {
+	while (true) {
+		int number;
+		cout << "Выберите действие:\n1)Уменьшить\n2)Увеличить\n3)Умножить\n4)Разделить\n0)Выйти\n";
+		cin >> number;
+		int count;
+
+		if (number == 1 || number == 2 || number == 3 || number == 4)
+		{
+			cout << "Введите число: ";
+			cin >> count;
+			cout << endl;
+		}
+		else  if (number == 0) {
+			return 0;
+			break;
+		}
+		else
+			cout << "Введено неверное число \n\n";
+
+		switch (number) {
+
+		case 1:
+
+			for (int i = 0; i < size; i++) {
+				Help = Arr[i];
+				for (int j = 0; j < size; j++) {
+					*(Help + j) = *(Help + j) - count;
+				}
+			}
+			OutMas(Arr, size);
+
+			break;
+		case 2:
+
+			for (int i = 0; i < size; i++) {
+				Help = Arr[i];
+				for (int j = 0; j < size; j++) {
+					*(Help + j) = *(Help + j) + count;
+				}
+			}
+			OutMas(Arr, size);
+
+			break;
+		case 3:
+
+			for (int i = 0; i < size; i++) {
+				Help = Arr[i];
+				for (int j = 0; j < size; j++) {
+					*(Help + j) = *(Help + j) * count;
+				}
+			}
+			OutMas(Arr, size);
+
+			break;
+		case 4:
+
+			if (count == 0) {
+				cout << "Я сама тебя на ноль сейчас поделю\nМеняй число!\n\n";
+				break;
+			}
+			for (int i = 0; i < size; i++) {
+				Help = Arr[i];
+				for (int j = 0; j < size; j++) {
+					*(Help + j) = *(Help + j) / count;
+				}
+			}
+			OutMas(Arr, size);
+
+			break;
+		}
+	}
+}
+
+
+
